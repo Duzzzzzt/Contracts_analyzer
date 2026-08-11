@@ -1,0 +1,20 @@
+.sectionContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 500px;
+  background-color: #EBEBEB;
+}
+
+.form {
+  background-color: #D1D1D1;
+  margin: 25px 0px;
+  margin-left: 25px;
+  margin-right: 12.5px;
+}
+
+.result {
+  background-color: #D1D1D1;
+  margin: 25px 0px;
+  margin-right: 25px;
+  margin-left: 12.5px;
+}

@@ -1,0 +1,36 @@
+header {
+  padding: 50px 150px;
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+ul {
+  float: right;
+  list-style: none;
+  margin-top: 4px;
+}
+
+ul li {
+  display: inline;
+  margin-left: 25px;
+}
+
+.link {
+  cursor: pointer;
+  transition: opacity 250ms ease;
+  text-decoration: none;
+  color: #333;
+}
+
+.link:hover {
+  opacity: 0.5;
+}
+
+.activeLink {
+  text-decoration: none;
+  color: #333;
+  cursor: default;
+}

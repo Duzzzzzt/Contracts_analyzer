@@ -1,15 +1,15 @@
 .sectionContainer {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 50% 50%;
   height: 500px;
   background-color: #EBEBEB;
 }
 
 .form {
-  background-color: #D1D1D1;
   margin: 25px 0px;
   margin-left: 25px;
   margin-right: 12.5px;
+  border-radius: 35px;
 }
 
 .result {

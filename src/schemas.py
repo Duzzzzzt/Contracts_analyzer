@@ -18,7 +18,7 @@ class DocumentAttributes(BaseModel):
 class DocumentResponse(BaseModel):
     id: int
     filename: str
-    attributes: DocumentAttributes
+    attributes: dict = {}
     description: str
     created_at: datetime
 

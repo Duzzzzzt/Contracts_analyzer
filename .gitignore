@@ -224,3 +224,6 @@ __marimo__/
 
 db
 *.db
+
+uploads
+*.pdf

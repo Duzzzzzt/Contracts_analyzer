@@ -43,7 +43,7 @@ class Database:
         
     def add_doc(self, filename,user):
         curs = self.conn.execute(
-            """INSERT INTO documents (filename,user) VALUES (?)""",
+            """INSERT INTO documents (filename,user) VALUES (?,?)""",
             (filename,user)
         )
         

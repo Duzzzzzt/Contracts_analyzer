@@ -31,7 +31,7 @@ db = Database()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
     
-@app.get('/text')
+@app.post('/upload')
 async def get_text(file: UploadFile = File(...)):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_filename = f"{timestamp}_{file.filename}"
@@ -41,45 +41,49 @@ async def get_text(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    return extract_text(str(file_path))
+    text = extract_text(str(file_path))
+    
+    print(type(text))
+    
+    return {'raw_text': text}
         
     
     
 
-@app.post('/upload', response_model=DocumentResponse)
-async def upload(file: UploadFile = File(...)):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_filename = f"{timestamp}_{file.filename}"
-    file_path = UPLOAD_DIR / safe_filename
+# @app.post('/upload', response_model=DocumentResponse)
+# async def upload(file: UploadFile = File(...)):
+#     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#     safe_filename = f"{timestamp}_{file.filename}"
+#     file_path = UPLOAD_DIR / safe_filename
 
-    print(type(file_path))
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+#     print(type(file_path))
+#     with open(file_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
     
 
-    fields = extract_fields(str(file_path))
+#     fields = extract_fields(str(file_path))
     
-    doc_id = db.add_doc(file.filename, 'admin')
+#     doc_id = db.add_doc(file.filename, 'admin')
     
-    print(doc_id)
+#     print(doc_id)
     
-    db.save_attributes(doc_id, fields)
+#     db.save_attributes(doc_id, fields)
     
-    print(fields)
+#     print(fields)
     
-    return DocumentResponse(
-        id=doc_id,
-        filename=file.filename,
-        attributes=DocumentAttributes(
-            number=fields.get("number"),
-            date=fields.get("date"),
-            amount=fields.get("amount"),
-            parties=fields.get("parties",[]),
-            additional_data={}
-        ),
-        description="",
-        created_at=datetime.now()
-    )
+#     return DocumentResponse(
+#         id=doc_id,
+#         filename=file.filename,
+#         attributes=DocumentAttributes(
+#             number=fields.get("number"),
+#             date=fields.get("date"),
+#             amount=fields.get("amount"),
+#             parties=fields.get("parties",[]),
+#             additional_data={}
+#         ),
+#         description="",
+#         created_at=datetime.now()
+#     )
 
 
 @app.get('/documents', response_model=DocumentListResponse)

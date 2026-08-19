@@ -1,7 +1,7 @@
 .sectionContainer {
   display: grid;
   grid-template-columns: 50% 50%;
-  height: 500px;
+  min-height: 500px;
   background-color: #EBEBEB;
 }
 
@@ -15,6 +15,9 @@
 .result {
   background-color: #D1D1D1;
   margin: 25px 0px;
+  padding: 25px;
   margin-right: 25px;
   margin-left: 12.5px;
+  overflow: auto;
+  max-height: 500px;
 }

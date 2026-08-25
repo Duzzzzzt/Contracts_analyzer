@@ -1,4 +1,3 @@
-
 import re
 
 MONTHS = {
@@ -140,6 +139,31 @@ def extract_parties(text):
     return None, None
 
 
+_INN = re.compile(r"\b(\d{10}|\d{12})\b")
+
+def extract_inn(text):
+    inns = []
+    for m in _INN.finditer(text):
+        val = m.group(1)
+        if val not in inns: inns.append(val)
+    return inns
+
+
+_CURRENCY = re.compile(r"\b(руб|доллар|евро|usd|eur|rub)\b", re.IGNORECASE)
+
+def extract_currency(text):
+    m = _CURRENCY.search(text)
+    if m:
+        val = m.group(1).lower()
+        if "руб" in val or "rub" in val: return "RUB"
+        if "доллар" in val or "usd" in val: return "USD"
+        if "евро" in val or "eur" in val: return "EUR"
+    return None
+
+
+def extract_subject(text):
+    return None
+
 
 # Главная функция регулярки 
 def extract_fields_regex(text):
@@ -155,6 +179,9 @@ def extract_fields_regex(text):
         "date": extract_contract_date(text),
         "amount": extract_amount(text),
         "parties": parties,
+        "subject": extract_subject(text),
+        "currency": extract_currency(text),
+        "inn": extract_inn(text),
     }
 
 

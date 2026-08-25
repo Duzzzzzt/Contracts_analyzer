@@ -21,6 +21,9 @@ FIELDS = (
     "date",
     "amount",
     "parties",
+    "subject",
+    "currency",
+    "inn",
 )
 
 # Слова-пустышки: LLM часто пишет их вместо null.
@@ -62,7 +65,7 @@ def extract_fields_with_sources(file_path: str):
     for key in FIELDS:
         value = raw.get(key)
         if is_empty(value):
-            fields[key] = [] if key == "parties" else None
+            fields[key] = [] if key in ("parties", "inn") else None
             sources[key] = "none"
         else:
             fields[key] = value
@@ -73,7 +76,7 @@ def extract_fields_with_sources(file_path: str):
     for k in FIELDS:
         if is_empty(fields[k]):
             missing.append(k)
-        elif k == "parties" and len(fields[k]) < 2:
+        elif k in ("parties", "inn") and len(fields[k]) < 2:
             missing.append(k)
 
     if not missing:
@@ -91,7 +94,7 @@ def extract_fields_with_sources(file_path: str):
             if key not in FIELDS or is_empty(value):
                 continue
             
-            if key == "parties":
+            if key in ("parties", "inn"):
                 if not isinstance(value, list):
                     continue
                 # Добавляем уникальные значения

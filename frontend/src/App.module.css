@@ -1,0 +1,5 @@
+.globalGridContainer {
+  display: grid;
+  grid-template-rows: [row-header] auto [row-main-start] 1fr [row-main-end] auto [row-footer];
+  min-height: 100vh;
+}

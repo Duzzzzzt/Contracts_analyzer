@@ -1,4 +1,4 @@
-import fitz         
+import pymupdf         
 from docx import Document 
 
 def extract_text(file_path: str) -> str:
@@ -7,7 +7,7 @@ def extract_text(file_path: str) -> str:
     Возвращает весь текст документа одной строкой.
     """
     if file_path.endswith(".pdf"):
-        doc = fitz.open(file_path)
+        doc = pymupdf.open(file_path)
         text = "\n".join(page.get_text() for page in doc)
         doc.close()
 

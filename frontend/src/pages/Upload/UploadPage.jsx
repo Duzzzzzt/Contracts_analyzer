@@ -3,20 +3,19 @@ import UploadForm from '../../components/features/UploadForm/UploadForm';
 import styles from './UploadPage.module.css';
 
 export default function UploadPage() {
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-  const [extractedText, setExtractedText] = useState('');
+  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'pending' | 'success' | 'error'
+  const [extractedData, setExtractedData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleFileSelect = async (file) => {
     setStatus('loading');
     setErrorMessage('');
-    setExtractedText('');
+    setExtractedData(null);
 
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      // отправка файла на бэкенд
       const response = await fetch('http://localhost:8000/upload', {
         method: 'POST',
         body: formData,
@@ -26,22 +25,50 @@ export default function UploadPage() {
         throw new Error(`Ошибка сервера: ${response.status}`);
       }
 
-      const data = await response.json();
+      let responseData = await response.json();
 
-      // сырой текст
-      const rawText = data.raw_text || data.text || data.content || data.description;
-
-      if (rawText) {
-        setExtractedText(rawText);
-      } else {
-        setExtractedText(JSON.stringify(data, null, 2));
+      // если вернулся только ID, пробуем запросить данные документа
+      if (!responseData.attributes && responseData.id) {
+        const docResponse = await fetch(`http://localhost:8000/documents/${responseData.id}`);
+        if (docResponse.ok) {
+          responseData = await docResponse.json();
+        }
       }
-      setStatus('success');
+
+      const attrs = responseData.attributes || {};
+
+      // проверка, есть ли внутри attributes хотя бы одно непустое значение
+      const hasFields = Object.keys(attrs).some((key) => {
+        const val = attrs[key];
+        return val && (!Array.isArray(val) || val.length > 0);
+      });
+
+      if (hasFields) {
+        setExtractedData(attrs);
+        setStatus('success');
+      } else {
+        // если attributes пуст или отсутствуют распарсенные данные
+        setStatus('pending');
+      }
+
     } catch (err) {
-      console.error('Ошибка извлечения текста:', err);
-      setErrorMessage(`Не удалось извлечь текст: ${err.message}`);
+      console.error('Ошибка обработки:', err);
+      setErrorMessage(`Не удалось обработать документ: ${err.message}`);
       setStatus('error');
     }
+  };
+
+  const renderField = (label, value) => {
+    if (!value || (Array.isArray(value) && value.length === 0)) return null;
+
+    return (
+      <div className={styles.fieldRow} key={label}>
+        <span className={styles.fieldLabel}>{label}:</span>
+        <span className={styles.fieldValue}>
+          {Array.isArray(value) ? value.join('; ') : value}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -49,34 +76,45 @@ export default function UploadPage() {
       <div className={styles.form}>
         <UploadForm onFileSelect={handleFileSelect} />
       </div>
+
       <div className={styles.result}>
         {status === 'idle' && (
-          <p style={{ color: '#777', textAlign: 'center', margin: 'auto' }}>
-            Загрузите документ слева для извлечения текста
+          <p className={styles.placeholderText}>
+            Загрузите документ слева для извлечения данных
           </p>
         )}
 
         {status === 'loading' && (
-          <p style={{ textAlign: 'center', margin: 'auto' }}>
-            Идет извлечение сырого текста из документа...
+          <p className={styles.loadingText}>
+            Нейронная сеть анализирует договор...
           </p>
         )}
 
-        {status === 'success' && (
-          <pre style={{
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            margin: 0,
-            width: '100%',
-            height: '100%',
-            overflowY: 'auto'
-          }}>
-            {extractedText}
-          </pre>
+        {status === 'pending' && (
+          <p className={styles.placeholderText}>
+            Файл принят сервером, но бэкенд пока не вернул извлеченные поля (объект attributes пуст).
+          </p>
+        )}
+
+        {status === 'success' && extractedData && (
+          <div className={styles.fieldsContainer}>
+            <h3 className={styles.resultTitle}>Извлеченные данные</h3>
+            <div className={styles.fieldsList}>
+              {renderField('Номер договора', extractedData.number)}
+              {renderField('Дата', extractedData.date)}
+              {renderField('Сумма', extractedData.amount)}
+              {renderField('Стороны', extractedData.parties)}
+
+              {extractedData.additional_data &&
+                Object.entries(extractedData.additional_data).map(([key, val]) => (
+                  renderField(key, val)
+                ))}
+            </div>
+          </div>
         )}
 
         {status === 'error' && (
-          <p style={{ color: '#d9534f', textAlign: 'center', margin: 'auto' }}>
+          <p className={styles.errorText}>
             {errorMessage}
           </p>
         )}

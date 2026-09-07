@@ -1,6 +1,7 @@
 from pydantic import BaseModel
-from typing import List
-from datetime import datetime, date
+from typing import List, Optional
+from datetime import datetime
+from datetime import date as datet
 
 
 
@@ -10,7 +11,7 @@ class DocumentCreate(BaseModel):
 
 class DocumentAttributes(BaseModel):
     number: str
-    date: date
+    date: datet
     amount: float
     parties: List[str]
     additional_data: dict = {}
@@ -18,9 +19,10 @@ class DocumentAttributes(BaseModel):
 class DocumentResponse(BaseModel):
     id: int
     filename: str
-    attributes: dict = {}
+    attributes: DocumentAttributes
     description: str
     created_at: datetime
+    status: str
 
 class DocumentListResponse(BaseModel):
     number: int

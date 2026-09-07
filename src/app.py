@@ -31,27 +31,10 @@ db = Database()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
     
-@app.post('/upload')
-async def get_text(file: UploadFile = File(...)):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_filename = f"{timestamp}_{file.filename}"
-    file_path = UPLOAD_DIR / safe_filename
-
-    print(type(file_path))
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    text = extract_text(str(file_path))
     
-    print(type(text))
-    
-    return {'raw_text': text}
-        
-    
-    
-
-# @app.post('/upload', response_model=DocumentResponse)
-# async def upload(file: UploadFile = File(...)):
+# тест вывод текста
+# @app.post('/upload')
+# async def get_text(file: UploadFile = File(...)):
 #     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 #     safe_filename = f"{timestamp}_{file.filename}"
 #     file_path = UPLOAD_DIR / safe_filename
@@ -59,72 +42,120 @@ async def get_text(file: UploadFile = File(...)):
 #     print(type(file_path))
 #     with open(file_path, "wb") as buffer:
 #         shutil.copyfileobj(file.file, buffer)
+        
+#     text = extract_text(str(file_path))
+    
+#     print(type(text))
+    
+#     return {'raw_text': text}
+        
+    
     
 
-#     fields = extract_fields(str(file_path))
+@app.post('/upload', response_model=DocumentResponse)
+async def upload(file: UploadFile = File(...)):
     
-#     doc_id = db.add_doc(file.filename, 'admin')
+    MAIN_FIELDS = {"number", "date", "amount", "parties"}
     
-#     print(doc_id)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_filename = f"{timestamp}_{file.filename}"
+    file_path = UPLOAD_DIR / safe_filename
     
-#     db.save_attributes(doc_id, fields)
+    print(type(file_path))
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
     
-#     print(fields)
+    text = extract_text(str(file_path))
+    fields = extract_fields(str(file_path))
     
-#     return DocumentResponse(
-#         id=doc_id,
-#         filename=file.filename,
-#         attributes=DocumentAttributes(
-#             number=fields.get("number"),
-#             date=fields.get("date"),
-#             amount=fields.get("amount"),
-#             parties=fields.get("parties",[]),
-#             additional_data={}
-#         ),
-#         description="",
-#         created_at=datetime.now()
-#     )
+    val = validate_against_text(fields, text)
+    
+    
+    doc_id = db.add_doc(file.filename, 'admin', 'succesful')
+    
+    print(doc_id)
+    
+    db.save_attributes(doc_id, fields)
+    
+    print(fields)
+    
+    add_data = {}
+    
+    for key,value in fields.items():
+        if key not in MAIN_FIELDS:
+            add_data[key] = value
+            
+    
+    return DocumentResponse(
+        id=doc_id,
+        filename=file.filename,
+        attributes=DocumentAttributes(
+            number=fields.get("number"),
+            date=fields.get("date"),
+            amount=fields.get("amount"),
+            parties=fields.get("parties",[]),
+            subject=fields.get("subject"),
+            currency=fields.get("currency"),
+            inn=fields.get("inn",[]),
+            additional_data=add_data
+        ),
+        description="",
+        created_at=datetime.now(),
+        status='succesful'
+    )
 
 
 @app.get('/documents', response_model=DocumentListResponse)
 async def get_docs():
     # docs = db.get_docs_by_user('admin')
     docs = db.get_all_docs()
-    
+
     docs_list = []
     
     for i in docs:
         attr = db.get_attributes(i[0])
         docs_list.append(DocumentResponse(
-            id=i[0],
-            filename=i[1],
+            id=i['id'],
+            filename=i['filename'],
             attributes=attr,
             description="",
-            created_at=i[2]
+            created_at=i['upload_date'],
+            status=i['status']
         ))
         
-        return DocumentListResponse(
-            number=len(docs_list),
-            items=docs_list
-        )
+    return DocumentListResponse(
+        number=len(docs_list),
+        items=docs_list
+    )
         
 @app.get('/documents/{doc_id}', response_model=DocumentResponse)
 async def get_doc(doc_id: int):
-    doc = db.get_doc(doc_id)
-    
+    doc = db.get_document(doc_id)
+    print(doc)
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     
     attr = db.get_attributes(doc_id)
     
     return DocumentResponse(
-        id=doc[0],
-        filename=doc[1],
+        id=doc['id'],
+        filename=doc['filename'],
         attributes=attr,
         description="",
-        created_at=doc[2]
+        created_at=doc['upload_date'],
+        status=doc['status']
     )
     
+@app.delete('/documents/{doc_id}')
+async def delete_doc(doc_id: int):
+    doc = db.get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    db.delete_doc(doc_id)
+    db.delete_attributes(doc_id)
+    
+    return {"message": "Document deleted"}
 
         
     

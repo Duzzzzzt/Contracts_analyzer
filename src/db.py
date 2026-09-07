@@ -13,6 +13,7 @@ class Database:
             db_dir.mkdir(parents=True, exist_ok=True)
         
         self.conn = sqlite3.connect(self.db_path)
+        self.conn.row_factory = sqlite3.Row
         self.conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,10 +42,10 @@ class Database:
         self.conn.commit()
         
         
-    def add_doc(self, filename,user):
+    def add_doc(self, filename,user, status):
         curs = self.conn.execute(
-            """INSERT INTO documents (filename,user) VALUES (?,?)""",
-            (filename,user)
+            """INSERT INTO documents (filename,user,status) VALUES (?,?,?)""",
+            (filename,user,status)
         )
         
         self.conn.commit()
@@ -81,27 +82,14 @@ class Database:
             (doc_id,)
         ).fetchone()
         
-        attrs = self.conn.execute(
-            """SELECT attr_key, attr_value FROM attributes WHERE document_id = ?""", (doc_id,)
-        ).fetchall()
-        attrs = {}
-        for row in attrs:
-            key = row['attr_key']
-            value = row['attr_value']
-            
-            # Пытаемся распарсить JSON обратно в список/словарь
-            if key in ['parties', 'additional_data']:
-                try:
-                    value = json.loads(value)
-                except:
-                    pass
-            
-            attrs[key] = value
+        attrs = self.get_attributes(doc_id)
+        
         return {
-            'id': doc[0],
-            'file_name': doc[1],
-            'status': doc[3],
-            'attributes': dict(attrs)
+            'id': doc['id'],
+            'filename': doc['filename'],
+            'upload_date': doc['upload_date'],
+            'attributes': dict(attrs),
+            'status': doc['status']
         }
 
     def get_docs_by_user(self, user):
@@ -114,15 +102,47 @@ class Database:
     
     def get_all_docs(self):
         cur = self.conn.execute(
-            """SELECT id, filename, upload_date FROM documents"""
+            """SELECT id, filename, upload_date, status FROM documents"""
         ).fetchall()
         
         return cur
     
-    def get_attributes(self, doc_id):
-        cur = self.conn.execute(
-            """SELECT attr_key, attr_value FROM attributes WHERE document_id = ?""",
+    def get_attributes(self, doc_id) -> dict:
+        
+        rows = self.conn.execute(
+            "SELECT attr_key, attr_value FROM attributes WHERE document_id = ?",
             (doc_id,)
         ).fetchall()
         
-        return cur
+        attrs = {}
+        for row in rows:
+            key = row['attr_key']
+            value = row['attr_value']
+            
+           
+            try:
+                value = json.loads(value)
+            except:
+                pass
+            
+            if key in ['number', 'subject', 'currency'] and value is not None:
+                value = str(value)
+            attrs[key] = value
+        
+        return attrs
+    
+    def delete_doc(self, doc_id):
+        cur = self.conn.execute(
+            "DELETE FROM documents WHERE id = ?",
+            (doc_id,)
+        )
+        self.conn.commit()
+        print("succesfuly deleted document ")
+        
+    def delete_attributes(self, doc_id):
+        cur = self.conn.execute(
+            "DELETE FROM attributes WHERE document_id = ?",
+            (doc_id,)
+        )
+        self.conn.commit()
+        print("succesfuly deleted attributes ")

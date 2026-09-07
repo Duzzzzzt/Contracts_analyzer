@@ -5,7 +5,9 @@ import json
 import re
 import requests
 
-BASE_URL = "https://hedge-tipoff-sulk.ngrok-free.dev"
+# BASE_URL = "https://hedge-tipoff-sulk.ngrok-free.dev"
+# test on local model
+BASE_URL = "http://localhost:11434"
 MODEL = "qwen2.5:7b"
 TIMEOUT = 180
 MAX_TEXT_CHARS = 6000

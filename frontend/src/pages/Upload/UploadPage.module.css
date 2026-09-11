@@ -1,23 +1,133 @@
 .sectionContainer {
   display: grid;
   grid-template-columns: 50% 50%;
-  min-height: 500px;
+  min-height: 550px;
   background-color: #EBEBEB;
 }
 
+.leftPanel {
+  display: flex;
+  flex-direction: column;
+  margin: 25px 12.5px 25px 25px;
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  margin: 25px 25px 25px 12.5px;
+}
+
 .form {
-  margin: 25px 0px;
-  margin-left: 25px;
-  margin-right: 12.5px;
+  flex-grow: 1;
   border-radius: 35px;
+  margin-bottom: 20px;
 }
 
 .result {
-  background-color: #D1D1D1;
-  margin: 25px 0px;
-  padding: 25px;
-  margin-right: 25px;
-  margin-left: 12.5px;
+  flex-grow: 1;
+  background-color: #f5f5f5;
+  border: 1px solid #D1D1D1;
+  border-radius: 35px;
+  padding: 30px;
   overflow: auto;
-  max-height: 500px;
+  max-height: 480px; 
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;
+  text-align: center;
+}
+
+.result.hasContent {
+  justify-content: flex-start;
+  align-items: stretch;
+  text-align: left;
+}
+
+.placeholderText, .loadingText, .errorText {
+  color: rgb(98, 98, 98);
+  font-size: 16px;
+  font-weight: 450;
+}
+
+.errorText {
+  color: #d9534f;
+}
+
+.fieldsContainer {
+  width: 100%;
+}
+
+.resultTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.fieldsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fieldRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background-color: white;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+  gap: 15px;
+}
+
+.fieldLabel {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.fieldValue {
+  color: #222;
+  font-size: 14px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  height: 45px;
+}
+
+.actionBtn {
+  padding: 10px 30px;
+  border: none;
+  border-radius: 20px;
+  background-color: #626262;
+  color: white;
+  font-size: 16px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.actionBtn:hover {
+  background-color: #4a4a4a;
+}
+
+.actionBtn:active {
+  transform: scale(0.97);
+}
+
+.actionBtn:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
 }

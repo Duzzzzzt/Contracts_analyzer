@@ -1,12 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './UploadForm.module.css';
 
-export default function UploadForm({ onFileSelect }) {
+export default function UploadForm({ onFileSelect, selectedFile }) {
   const [isDragging, setIsDragging] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+
+      // eslint-disable-next-line
+      setPreviewUrl(url);
+
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    setIsDragging(true);
+    if (!selectedFile) setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
@@ -17,6 +31,8 @@ export default function UploadForm({ onFileSelect }) {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
+    if (selectedFile) return;
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0 && onFileSelect) {
       onFileSelect(files[0]);
@@ -30,6 +46,30 @@ export default function UploadForm({ onFileSelect }) {
     }
   };
 
+  // РЕЖИМ ПРЕДПРОСМОТРА (только для формата .pdf)
+  if (selectedFile) {
+    return (
+      <div className={styles.previewContainer}>
+        {selectedFile.type === 'application/pdf' ? (
+          <iframe
+            src={`${previewUrl}#toolbar=0`}
+            className={styles.previewFrame}
+            title="Предпросмотр документа"
+          />
+        ) : (
+          <div className={styles.fileCard}>
+            <span className={styles.fileIcon}>📄</span>
+            <p className={styles.fileName}>{selectedFile.name}</p>
+            <p className={styles.fileNote}>
+              Предпросмотр недоступен для этого формата, но файл готов к отправке.
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // РЕЖИМ ЗАГРУЗКИ
   return (
     <label
       className={`${styles.dropZone} ${isDragging ? styles.dragging : ''}`}
@@ -40,7 +80,7 @@ export default function UploadForm({ onFileSelect }) {
       <div className={styles.content}>
         <p className={styles.text}>
           {isDragging
-            ? 'Отпустите файл для загрузки'
+            ? 'Отпустите файл для выбора'
             : 'Перетащите договор сюда или нажмите для выбора'
           }
         </p>
@@ -50,7 +90,7 @@ export default function UploadForm({ onFileSelect }) {
         type='file'
         className={styles.inputHidden}
         onChange={handleChange}
-        accept='.pdf,.doc,.docx'
+        accept='.pdf,.doc,.docx,.txt'
       />
     </label>
   );

@@ -6,20 +6,21 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  background-color: #f5f5f5;
-  border: 3px dashed rgb(150, 150, 150);
+  border: 3px dashed rgb(98, 98, 98);
   border-radius: 35px;
   overflow: hidden;
-  transition: background-color 500ms ease;
+  transition: background-color 300ms ease, border-color 300ms ease;
 }
 
-.dropZone:hover {
+.dropZone:hover, .dragging {
   background-color: #D1D1D1;
+  border-color: #333;
 }
 
 .content {
   text-align: center;
   pointer-events: none;
+  padding: 20px;
 }
 
 .text {
@@ -64,7 +65,7 @@
 
 .fileIcon {
   font-size: 64px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .fileName {

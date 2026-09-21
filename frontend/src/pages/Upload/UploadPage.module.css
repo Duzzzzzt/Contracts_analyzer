@@ -34,7 +34,7 @@
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   text-align: center;
 }
@@ -117,11 +117,11 @@
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.actionBtn:hover {
+.actionBtn:hover:not(:disabled) {
   background-color: #4a4a4a;
 }
 
-.actionBtn:active {
+.actionBtn:active:not(:disabled) {
   transform: scale(0.97);
 }
 

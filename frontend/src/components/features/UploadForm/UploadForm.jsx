@@ -8,10 +8,8 @@ export default function UploadForm({ onFileSelect, selectedFile }) {
   useEffect(() => {
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
-
       // eslint-disable-next-line
       setPreviewUrl(url);
-
       return () => URL.revokeObjectURL(url);
     } else {
       setPreviewUrl(null);
@@ -46,7 +44,6 @@ export default function UploadForm({ onFileSelect, selectedFile }) {
     }
   };
 
-  // РЕЖИМ ПРЕДПРОСМОТРА (только для формата .pdf)
   if (selectedFile) {
     return (
       <div className={styles.previewContainer}>
@@ -69,7 +66,6 @@ export default function UploadForm({ onFileSelect, selectedFile }) {
     );
   }
 
-  // РЕЖИМ ЗАГРУЗКИ
   return (
     <label
       className={`${styles.dropZone} ${isDragging ? styles.dragging : ''}`}

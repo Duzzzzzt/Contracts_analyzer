@@ -1,0 +1,43 @@
+services:
+  backend:
+    build: .
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: qwen2.5:7b
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads   # uploaded contract files
+      - db_data:/app/src/db         # sqlite database
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"                   # nginx serves the built app; port 5173 is in the backend's CORS allowlist
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  ollama:
+    build: ./ollama                # модель qwen2.5:7b уже внутри образа
+    ports:
+      - "11434:11434"              # чтобы полистать модели/сделать запрос с хоста
+    environment:
+      OLLAMA_HOST: 0.0.0.0
+      # Держать модель загруженной в память между запросами (нет перезагрузки
+      # 4.7 ГБ на каждый документ). -1 = держать всегда.
+      OLLAMA_KEEP_ALIVE: -1
+    # GPU-ускорение:
+    #  - Docker Desktop (как у нас) НЕ видит GPU хоста — тут только CPU.
+    #  - Работа на видеокарте через Docker: нужен нативный docker engine,
+    #    см. docker-compose.gpu-intel.yml (Intel) / docker-compose.gpu-nvidia.yml.
+    #  - Самое быстрое на Docker Desktop: Ollama на хосте (GPU), контейнеры
+    #    подключаются к нему через host.docker.internal — см. docker-compose.host-ollama.yml.
+    restart: unless-stopped
+
+volumes:
+  uploads_data:
+  db_data:

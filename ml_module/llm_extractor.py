@@ -2,13 +2,16 @@
 извлечение полей через нейронку.
 """
 import json
+import os
 import re
 import requests
 
+# Нейронка ходит в Ollama. В Docker (docker compose) URL подменяется
+# через переменную окружения OLLAMA_BASE_URL на http://ollama:11434.
 # BASE_URL = "https://hedge-tipoff-sulk.ngrok-free.dev"
 # test on local model
-BASE_URL = "http://localhost:11434"
-MODEL = "qwen2.5:7b"
+BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
 TIMEOUT = 180
 MAX_TEXT_CHARS = 6000
 VERBOSE = True

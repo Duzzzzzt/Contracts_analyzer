@@ -227,3 +227,5 @@ db
 
 uploads
 *.pdf
+
+*.zip

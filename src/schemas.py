@@ -10,19 +10,19 @@ class DocumentCreate(BaseModel):
 
 
 class DocumentAttributes(BaseModel):
-    number: str
-    date: datet
-    amount: float
-    parties: List[str]
-    additional_data: dict = {}
+    number: Optional[str] = None
+    date: Optional[datet] = None
+    amount: Optional[float] = None
+    parties: Optional[List[str]] = None
+    additional_data: Optional[dict] = None
 
 class DocumentResponse(BaseModel):
-    id: int
-    filename: str
-    attributes: DocumentAttributes
-    description: str
-    created_at: datetime
-    status: str
+    id: Optional[int] = int
+    filename: Optional[str] = None
+    attributes: Optional[DocumentAttributes] = None
+    description: Optional[str] = None
+    created_at: Optional[datetime] = None
+    status: Optional[str] = None
 
 class DocumentListResponse(BaseModel):
     number: int

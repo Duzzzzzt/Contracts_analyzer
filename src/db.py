@@ -146,3 +146,10 @@ class Database:
         )
         self.conn.commit()
         print("succesfuly deleted attributes ")
+    def update_status(self, doc_id, status):
+        cur = self.conn.execute(
+            "UPDATE documents SET status = ? WHERE id = ?",
+            (status, doc_id)
+        )
+        self.conn.commit()
+        print("succesfuly updated status ")

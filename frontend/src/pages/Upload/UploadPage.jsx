@@ -21,6 +21,7 @@ export default function UploadPage() {
   const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'pending' | 'success' | 'error'
   const [extractedData, setExtractedData] = useState(null);
   const [documentId, setDocumentId] = useState(null);
+  const [documentFilename, setDocumentFilename] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved'
 
@@ -65,8 +66,11 @@ export default function UploadPage() {
 
       let responseData = await response.json();
 
-      if (responseData.id) {
-        setDocumentId(responseData.id);
+      // if (responseData.id) {
+      //   setDocumentId(responseData.id);
+      // }
+      if (responseData.filename) {
+        setDocumentFilename(responseData.filename);
       }
 
       if (!responseData.attributes && responseData.id) {
@@ -109,6 +113,7 @@ export default function UploadPage() {
         },
         body: JSON.stringify({
           document_id: documentId,
+          filename: documentFilename,
           attributes: extractedData,
         }),
       });

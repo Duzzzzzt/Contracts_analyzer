@@ -50,10 +50,11 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 #     return {'raw_text': text}
         
     
-    
+document = DocumentResponse
 
 @app.post('/upload', response_model=DocumentResponse)
 async def upload(file: UploadFile = File(...)):
+
     
     MAIN_FIELDS = {"number", "date", "amount", "parties"}
     
@@ -71,11 +72,11 @@ async def upload(file: UploadFile = File(...)):
     val = validate_against_text(fields, text)
     
     
-    doc_id = db.add_doc(file.filename, 'admin', 'succesful')
     
-    print(doc_id)
     
-    db.save_attributes(doc_id, fields)
+    # print(doc_id)
+    
+    # db.save_attributes(doc_id, fields)
     
     print(fields)
     
@@ -85,9 +86,9 @@ async def upload(file: UploadFile = File(...)):
         if key not in MAIN_FIELDS:
             add_data[key] = value
             
-    
+
     return DocumentResponse(
-        id=doc_id,
+        id=None,
         filename=file.filename,
         attributes=DocumentAttributes(
             number=fields.get("number"),
@@ -105,7 +106,7 @@ async def upload(file: UploadFile = File(...)):
     )
 
 
-@app.get('/documents', response_model=DocumentListResponse)
+@app.get('/registry', response_model=DocumentListResponse)
 async def get_docs():
     # docs = db.get_docs_by_user('admin')
     docs = db.get_all_docs()
@@ -122,7 +123,6 @@ async def get_docs():
             created_at=i['upload_date'],
             status=i['status']
         ))
-        
     return DocumentListResponse(
         number=len(docs_list),
         items=docs_list
@@ -158,6 +158,17 @@ async def delete_doc(doc_id: int):
     return {"message": "Document deleted"}
 
         
+@app.post('/registry/save')
+async def save_registry(data = Body()):
+
+    doc_id = db.add_doc(data['filename'], 'admin', 'succesful')
+    db.save_attributes(doc_id, data['attributes'])
     
     
+    print(data)
+    return {
+        "message": "Registry saved",
+        "document_id": doc_id,
+        "filename": data['filename']
+    }
     

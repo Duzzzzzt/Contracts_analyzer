@@ -1,0 +1,25 @@
+# VCS
+.git
+.gitignore
+
+# Python
+.venv
+__pycache__
+*.py[cod]
+*.egg-info
+dist
+build
+
+# Local data / uploads (mounted as volumes at runtime)
+uploads
+db
+*.db
+*.pdf
+
+# Node / frontend
+frontend/node_modules
+
+# Archives / misc
+project.zip
+*.log
+.env

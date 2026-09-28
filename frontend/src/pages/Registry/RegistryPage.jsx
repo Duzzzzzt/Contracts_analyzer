@@ -17,7 +17,7 @@ export default function RegistryPage() {
         }
 
         const data = await response.json();
-        setDocuments(data);
+        setDocuments(data.items);
       } catch (err) {
         console.error('Ошибка загрузки реестра:', err);
         setError('Не удалось загрузить данные реестра. Возможно, бэкенд недоступен.');

@@ -102,7 +102,7 @@ class Database:
     
     def get_all_docs(self):
         cur = self.conn.execute(
-            """SELECT id, filename, upload_date, status FROM documents"""
+            """SELECT id, filename, upload_date, status FROM documents ORDER BY id DESC"""
         ).fetchall()
         
         return cur

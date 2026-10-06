@@ -1,6 +1,9 @@
-# Frontend (Vite + React) multi-stage image:
-# stage 1 builds static assets, stage 2 serves them with nginx.
-FROM node:22-alpine AS build
+# Frontend (Vite + React) — образ для РАЗРАБОТКИ с автоперезапуском (HMR).
+# Образ собирается один раз (ставит зависимости из package-lock.json).
+# Исходники монтируются из проекта в контейнер, поэтому правки видны
+# в браузере сразу, без пересборки.
+# Продакшен-сборка (статический сайт на nginx) — см. Dockerfile.prod.
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -8,10 +11,8 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
 
-FROM nginx:1.27-alpine
+EXPOSE 5173
 
-COPY --from=build /app/dist /usr/share/nginx/html
-
-EXPOSE 80
+# --host нужен, чтобы Vite слушал все интерфейсы внутри контейнера
+CMD ["npm", "run", "dev", "--", "--host"]

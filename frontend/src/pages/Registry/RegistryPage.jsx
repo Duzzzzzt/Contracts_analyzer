@@ -56,7 +56,7 @@ export default function RegistryPage() {
   return (
     <section className={styles.pageContainer}>
       <div className={styles.tableCard}>
-        <h2 className={styles.title}>Реестр обработанных договоров</h2>
+        <h2 className={styles.title}>Реестр договоров</h2>
 
         {loading && <p className={styles.statusText}>Загрузка данных из базы...</p>}
         {error && <p className={styles.errorText}>{error}</p>}
@@ -72,11 +72,22 @@ export default function RegistryPage() {
                 <tr>
                   <th style={{ width: '10%' }}>№</th>
                   <th>Документ (Имя файла)</th>
+                  <th>Номер договора</th>
+                  <th>Дата</th>
+                  <th>Стороны</th>
+                  <th>Сумма</th>
+                  <th>ИНН</th>
                 </tr>
               </thead>
               <tbody>
-                {documents.map((doc, index) => (
-                  <tr
+                {documents.map((doc, index) => {
+
+                
+                  const attrs = doc.attributes || {};
+                  const additional = attrs.additional_data || {};
+
+                  return (
+                    <tr
                     key={doc.id || index}
                     className={styles.clickableRow}
                     onClick={() => setSelectedDoc(doc)}
@@ -90,8 +101,22 @@ export default function RegistryPage() {
                         </span>
                       </div>
                     </td>
+                    <td>{attrs.number || '—'}</td>
+                      <td>{attrs.date || '—'}</td>
+                      <td className={styles.partiesCell}>
+                        {Array.isArray(attrs.parties) ? attrs.parties.join('; ') : attrs.parties || '—'}
+                      </td>
+                      <td className={styles.amountCell}>
+                        {attrs.amount ? `${attrs.amount} ₽` : '—'}
+                      </td>
+                      <td>
+                        {Array.isArray(additional.inn)
+                          ? additional.inn.join('; ')
+                          : additional.inn || '—'}
+                      </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -112,17 +137,19 @@ export default function RegistryPage() {
               {(() => {
                 const attrs = selectedDoc.attributes || {};
                 return (
-                  <div className={styles.fieldsList}>
-                    {renderField('Номер договора', attrs.number)}
-                    {renderField('Дата договора', attrs.date)}
-                    {renderField('Сумма', attrs.amount)}
-                    {renderField('Стороны', attrs.parties)}
+                  <>
+                    <div className={styles.fieldsList}>
+                      {renderField('Номер договора', attrs.number)}
+                      {renderField('Дата договора', attrs.date)}
+                      {renderField('Сумма', attrs.amount)}
+                      {renderField('Стороны', attrs.parties)}
 
-                    {attrs.additional_data &&
-                      Object.entries(attrs.additional_data).map(([key, val]) => (
-                        renderField(LABELS_MAP[key] || key, val)
-                      ))}
-                  </div>
+                      {attrs.additional_data &&
+                        Object.entries(attrs.additional_data).map(([key, val]) => (
+                          renderField(LABELS_MAP[key] || key, val)
+                        ))}
+                    </div>
+                  </>
                 );
               })()}
             </div>

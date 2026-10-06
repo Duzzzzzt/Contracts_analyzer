@@ -9,7 +9,7 @@
 
 .tableCard {
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   background-color: #ffffff;
   border-radius: 24px;
   padding: 40px;
@@ -78,13 +78,21 @@
   color: #94a3b8;
 }
 
+.partiesCell {
+  min-width: 200px;
+}
+
+.amountCell {
+  white-space: nowrap;
+}
+
 .clickableRow {
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .clickableRow:hover {
-  background-color: #f0fdf4;
+  background-color: #f0f3fd;
   transform: translateX(4px);
 }
 
@@ -111,7 +119,6 @@
   font-size: 15px;
 }
 
-/* модальное окно */
 
 .modalOverlay {
   position: fixed;
